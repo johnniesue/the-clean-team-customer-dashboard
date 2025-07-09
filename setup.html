@@ -43,23 +43,25 @@
             font-size: 1.1rem;
         }
 
-        .progress-bar {
-            background: #e2e8f0;
-            height: 8px;
-            border-radius: 4px;
-            margin: 20px 0;
-            overflow: hidden;
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
         }
 
-        .progress-fill {
-            background: linear-gradient(90deg, #48bb78, #38a169);
-            height: 100%;
-            transition: width 0.3s ease;
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+            display: block;
         }
 
-        .setup-sections {
-            display: grid;
-            gap: 30px;
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+            display: block;
         }
 
         .setup-section {
@@ -67,36 +69,17 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             overflow: hidden;
+            margin-bottom: 30px;
         }
 
         .section-header {
             background: linear-gradient(135deg, #4299e1, #667eea);
             color: white;
             padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .section-header h2 {
             font-size: 1.5rem;
-        }
-
-        .section-status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .status-complete {
-            background: #c6f6d5;
-            color: #22543d;
-        }
-
-        .status-incomplete {
-            background: #fed7d7;
-            color: #742a2a;
         }
 
         .section-body {
@@ -142,6 +125,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            margin-top: 10px;
         }
 
         .color-option {
@@ -158,28 +142,8 @@
             transform: scale(1.1);
         }
 
-        .service-item {
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .service-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .service-actions {
-            display: flex;
-            gap: 10px;
-        }
-
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -188,6 +152,7 @@
             text-decoration: none;
             display: inline-block;
             text-align: center;
+            margin: 5px;
         }
 
         .btn-primary {
@@ -209,24 +174,6 @@
             background: #38a169;
         }
 
-        .btn-danger {
-            background: #f56565;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #e53e3e;
-        }
-
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-
-        .btn-secondary:hover {
-            background: #cbd5e0;
-        }
-
         .area-tags {
             display: flex;
             flex-wrap: wrap;
@@ -237,12 +184,12 @@
         .area-tag {
             background: #e2e8f0;
             color: #4a5568;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 15px;
             font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
 
         .remove-tag {
@@ -256,48 +203,12 @@
             font-size: 0.8rem;
         }
 
-        .api-section {
+        .service-item {
             background: #f7fafc;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .api-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            padding: 15px;
             margin-bottom: 15px;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 25px;
-            background: #e2e8f0;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .toggle-switch.active {
-            background: #48bb78;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 21px;
-            height: 21px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s ease;
-        }
-
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(25px);
         }
 
         .quick-actions {
@@ -305,15 +216,6 @@
             gap: 15px;
             margin-top: 30px;
             flex-wrap: wrap;
-        }
-
-        .success-message {
-            background: #c6f6d5;
-            color: #22543d;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
         }
 
         @media (max-width: 768px) {
@@ -332,28 +234,22 @@
         <div class="header">
             <h1>🚀 Business Setup</h1>
             <p>Configure your dashboard for your business</p>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <p id="progressText">Setup Progress: 0%</p>
         </div>
 
-        <div class="success-message" id="successMessage">
-            ✅ Settings saved successfully!
-        </div>
+        <!-- Status Messages -->
+        <div id="statusMessage" class="message"></div>
 
         <div class="setup-sections">
             <!-- Company Information -->
             <div class="setup-section">
                 <div class="section-header">
                     <h2>🏢 Company Information</h2>
-                    <span class="section-status status-incomplete" id="companyStatus">Incomplete</span>
                 </div>
                 <div class="section-body">
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="companyName">Company Name *</label>
-                            <input type="text" id="companyName" placeholder="The Clean Team">
+                            <input type="text" id="companyName" placeholder="The Clean Team" required>
                         </div>
                         <div class="form-group">
                             <label for="companyTagline">Tagline</label>
@@ -361,7 +257,7 @@
                         </div>
                         <div class="form-group">
                             <label for="companyPhone">Phone Number *</label>
-                            <input type="tel" id="companyPhone" placeholder="(555) 123-4567">
+                            <input type="tel" id="companyPhone" placeholder="(555) 123-4567" required>
                         </div>
                         <div class="form-group">
                             <label for="companyEmail">Email</label>
@@ -379,7 +275,7 @@
                     
                     <div class="form-group">
                         <label>Brand Colors</label>
-                        <div class="color-picker">
+                        <div class="color-picker" id="colorPicker">
                             <div class="color-option" style="background: #4299e1" data-color="#4299e1"></div>
                             <div class="color-option" style="background: #48bb78" data-color="#48bb78"></div>
                             <div class="color-option" style="background: #ed8936" data-color="#ed8936"></div>
@@ -397,7 +293,6 @@
             <div class="setup-section">
                 <div class="section-header">
                     <h2>🗺️ Service Areas</h2>
-                    <span class="section-status status-incomplete" id="areasStatus">Incomplete</span>
                 </div>
                 <div class="section-body">
                     <div class="form-group">
@@ -420,7 +315,6 @@
             <div class="setup-section">
                 <div class="section-header">
                     <h2>🛠️ Services Offered</h2>
-                    <span class="section-status status-incomplete" id="servicesStatus">Incomplete</span>
                 </div>
                 <div class="section-body">
                     <div id="servicesList">
@@ -431,187 +325,147 @@
                     <button class="btn btn-primary" onclick="saveServices()">Save Services</button>
                 </div>
             </div>
-
-            <!-- API Integration -->
-            <div class="setup-section">
-                <div class="section-header">
-                    <h2>🔌 API Integration</h2>
-                    <span class="section-status status-complete" id="apiStatus">Optional</span>
-                </div>
-                <div class="section-body">
-                    <!-- Google Maps API -->
-                    <div class="api-section">
-                        <div class="api-toggle">
-                            <div class="toggle-switch" id="mapsToggle" onclick="toggleAPI('maps')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                            <h3>Google Maps API</h3>
-                        </div>
-                        <p>Enable Google Maps for service area visualization and routing</p>
-                        <div class="form-group" id="mapsConfig" style="display: none;">
-                            <label for="mapsApiKey">Google Maps API Key</label>
-                            <input type="text" id="mapsApiKey" placeholder="Your Google Maps API Key">
-                        </div>
-                    </div>
-
-                    <!-- Firebase -->
-                    <div class="api-section">
-                        <div class="api-toggle">
-                            <div class="toggle-switch" id="firebaseToggle" onclick="toggleAPI('firebase')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                            <h3>Firebase Backend</h3>
-                        </div>
-                        <p>Enable Firebase for cloud data storage and real-time sync</p>
-                        <div id="firebaseConfig" style="display: none;">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="firebaseApiKey">API Key</label>
-                                    <input type="text" id="firebaseApiKey" placeholder="Firebase API Key">
-                                </div>
-                                <div class="form-group">
-                                    <label for="firebaseAuthDomain">Auth Domain</label>
-                                    <input type="text" id="firebaseAuthDomain" placeholder="your-project.firebaseapp.com">
-                                </div>
-                                <div class="form-group">
-                                    <label for="firebaseProjectId">Project ID</label>
-                                    <input type="text" id="firebaseProjectId" placeholder="your-project-id">
-                                </div>
-                                <div class="form-group">
-                                    <label for="firebaseStorageBucket">Storage Bucket</label>
-                                    <input type="text" id="firebaseStorageBucket" placeholder="your-project.appspot.com">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" onclick="saveAPIConfig()">Save API Configuration</button>
-                </div>
-            </div>
         </div>
 
         <div class="quick-actions">
             <a href="employee-manager.html" class="btn btn-primary">👥 Manage Employees</a>
             <a href="index.html" class="btn btn-success">🏠 Go to Dashboard</a>
-            <button class="btn btn-secondary" onclick="resetAllSettings()">🔄 Reset All Settings</button>
+            <button class="btn btn-primary" onclick="testStorage()">🔧 Test Storage</button>
         </div>
     </div>
 
-    <script src="business-config.js"></script>
     <script>
-        let currentServices = [];
-        let currentAreas = [];
+        // Simple, working storage system
+        let currentServices = [
+            { id: 1, name: 'House Cleaning', description: 'Residential cleaning service', duration: 3, price: 150 },
+            { id: 2, name: 'Office Cleaning', description: 'Commercial cleaning service', duration: 4, price: 200 },
+            { id: 3, name: 'Deep Cleaning', description: 'Thorough deep cleaning', duration: 6, price: 300 }
+        ];
+        
+        let currentAreas = ['Dallas', 'Plano', 'Frisco', 'McKinney'];
+        let selectedColor = '#48bb78'; // Green for cleaning
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            loadCurrentSettings();
-            updateProgress();
+            loadSettings();
+            setupColorPicker();
+            displayServiceAreas();
+            displayServices();
         });
 
-        function loadCurrentSettings() {
-            const config = BusinessConfig.getConfig();
+        function showMessage(text, type = 'success') {
+            const messageEl = document.getElementById('statusMessage');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
             
-            // Load company info
-            document.getElementById('companyName').value = config.company.name;
-            document.getElementById('companyTagline').value = config.company.tagline;
-            document.getElementById('companyPhone').value = config.company.phone;
-            document.getElementById('companyEmail').value = config.company.email;
-            document.getElementById('companyWebsite').value = config.company.website;
-            document.getElementById('companyAddress').value = config.company.address;
-            
-            // Set selected color
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+
+        function testStorage() {
+            try {
+                localStorage.setItem('test', 'working');
+                const result = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                
+                if (result === 'working') {
+                    showMessage('✅ Storage is working perfectly!', 'success');
+                } else {
+                    showMessage('❌ Storage test failed', 'error');
+                }
+            } catch (e) {
+                showMessage('❌ Storage not available: ' + e.message, 'error');
+            }
+        }
+
+        function setupColorPicker() {
             const colorOptions = document.querySelectorAll('.color-option');
             colorOptions.forEach(option => {
-                if (option.dataset.color === config.company.colors.primary) {
-                    option.classList.add('selected');
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    selectedColor = this.dataset.color;
+                    showMessage('Color selected: ' + selectedColor, 'success');
+                });
+            });
+            
+            // Set default selection (green for cleaning)
+            const greenOption = document.querySelector('[data-color="#48bb78"]');
+            if (greenOption) {
+                greenOption.classList.add('selected');
+            }
+        }
+
+        function loadSettings() {
+            try {
+                // Load company info
+                const savedCompany = localStorage.getItem('company-info');
+                if (savedCompany) {
+                    const company = JSON.parse(savedCompany);
+                    document.getElementById('companyName').value = company.name || '';
+                    document.getElementById('companyTagline').value = company.tagline || '';
+                    document.getElementById('companyPhone').value = company.phone || '';
+                    document.getElementById('companyEmail').value = company.email || '';
+                    document.getElementById('companyWebsite').value = company.website || '';
+                    document.getElementById('companyAddress').value = company.address || '';
+                    
+                    if (company.color) {
+                        selectedColor = company.color;
+                        const colorOption = document.querySelector(`[data-color="${company.color}"]`);
+                        if (colorOption) {
+                            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                            colorOption.classList.add('selected');
+                        }
+                    }
                 }
-            });
-            
-            // Load service areas
-            currentAreas = [...config.serviceAreas];
-            displayServiceAreas();
-            
-            // Load services
-            currentServices = [...config.services];
-            displayServices();
-            
-            // Load API settings
-            if (config.apis.googleMaps.enabled) {
-                document.getElementById('mapsToggle').classList.add('active');
-                document.getElementById('mapsConfig').style.display = 'block';
-                document.getElementById('mapsApiKey').value = config.apis.googleMaps.apiKey;
-            }
-            
-            if (config.apis.firebase.enabled) {
-                document.getElementById('firebaseToggle').classList.add('active');
-                document.getElementById('firebaseConfig').style.display = 'block';
-                document.getElementById('firebaseApiKey').value = config.apis.firebase.config.apiKey;
-                document.getElementById('firebaseAuthDomain').value = config.apis.firebase.config.authDomain;
-                document.getElementById('firebaseProjectId').value = config.apis.firebase.config.projectId;
-                document.getElementById('firebaseStorageBucket').value = config.apis.firebase.config.storageBucket;
+
+                // Load service areas
+                const savedAreas = localStorage.getItem('service-areas');
+                if (savedAreas) {
+                    currentAreas = JSON.parse(savedAreas);
+                }
+
+                // Load services
+                const savedServices = localStorage.getItem('services');
+                if (savedServices) {
+                    currentServices = JSON.parse(savedServices);
+                }
+            } catch (e) {
+                console.warn('Failed to load settings:', e);
             }
         }
-
-        function updateProgress() {
-            const progress = BusinessConfig.getSetupProgress();
-            document.getElementById('progressFill').style.width = progress.percentage + '%';
-            document.getElementById('progressText').textContent = `Setup Progress: ${progress.percentage}%`;
-            
-            // Update section statuses
-            const config = BusinessConfig.getConfig();
-            
-            // Company status
-            const companyComplete = config.company.name !== "Your Business Name" && config.company.phone !== "(555) 123-4567";
-            updateSectionStatus('companyStatus', companyComplete);
-            
-            // Areas status
-            const areasComplete = config.serviceAreas.length > 0 && config.serviceAreas[0] !== "Your City";
-            updateSectionStatus('areasStatus', areasComplete);
-            
-            // Services status
-            const servicesComplete = config.services.length > 0 && config.services[0].name !== "Standard Service";
-            updateSectionStatus('servicesStatus', servicesComplete);
-        }
-
-        function updateSectionStatus(elementId, isComplete) {
-            const element = document.getElementById(elementId);
-            if (isComplete) {
-                element.textContent = 'Complete';
-                element.className = 'section-status status-complete';
-            } else {
-                element.textContent = 'Incomplete';
-                element.className = 'section-status status-incomplete';
-            }
-        }
-
-        // Color picker
-        document.querySelectorAll('.color-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
 
         function saveCompanyInfo() {
-            const selectedColor = document.querySelector('.color-option.selected')?.dataset.color || '#4299e1';
-            
-            const companyData = {
-                name: document.getElementById('companyName').value,
-                tagline: document.getElementById('companyTagline').value,
-                phone: document.getElementById('companyPhone').value,
-                email: document.getElementById('companyEmail').value,
-                website: document.getElementById('companyWebsite').value,
-                address: document.getElementById('companyAddress').value,
-                colors: {
-                    primary: selectedColor,
-                    secondary: selectedColor,
-                    accent: selectedColor
+            try {
+                const companyData = {
+                    name: document.getElementById('companyName').value.trim(),
+                    tagline: document.getElementById('companyTagline').value.trim(),
+                    phone: document.getElementById('companyPhone').value.trim(),
+                    email: document.getElementById('companyEmail').value.trim(),
+                    website: document.getElementById('companyWebsite').value.trim(),
+                    address: document.getElementById('companyAddress').value.trim(),
+                    color: selectedColor
+                };
+
+                // Validate required fields
+                if (!companyData.name) {
+                    showMessage('❌ Company name is required', 'error');
+                    return;
                 }
-            };
-            
-            BusinessConfig.updateSection('company', companyData);
-            showSuccessMessage();
-            updateProgress();
+                if (!companyData.phone) {
+                    showMessage('❌ Phone number is required', 'error');
+                    return;
+                }
+
+                localStorage.setItem('company-info', JSON.stringify(companyData));
+                showMessage('✅ Company information saved successfully!', 'success');
+            } catch (e) {
+                showMessage('❌ Failed to save company info: ' + e.message, 'error');
+            }
         }
 
         function displayServiceAreas() {
@@ -632,18 +486,27 @@
                 currentAreas.push(area);
                 displayServiceAreas();
                 input.value = '';
+                showMessage('✅ Service area added: ' + area, 'success');
+            } else if (currentAreas.includes(area)) {
+                showMessage('❌ Service area already exists', 'error');
+            } else {
+                showMessage('❌ Please enter a service area name', 'error');
             }
         }
 
         function removeServiceArea(area) {
             currentAreas = currentAreas.filter(a => a !== area);
             displayServiceAreas();
+            showMessage('✅ Service area removed: ' + area, 'success');
         }
 
         function saveServiceAreas() {
-            BusinessConfig.updateSection('serviceAreas', currentAreas);
-            showSuccessMessage();
-            updateProgress();
+            try {
+                localStorage.setItem('service-areas', JSON.stringify(currentAreas));
+                showMessage('✅ Service areas saved successfully!', 'success');
+            } catch (e) {
+                showMessage('❌ Failed to save service areas: ' + e.message, 'error');
+            }
         }
 
         function displayServices() {
@@ -661,16 +524,14 @@
                         </div>
                         <div class="form-group">
                             <label>Duration (hours)</label>
-                            <input type="number" value="${service.duration}" onchange="updateService(${index}, 'duration', this.value)">
+                            <input type="number" value="${service.duration}" min="0.5" step="0.5" onchange="updateService(${index}, 'duration', this.value)">
                         </div>
                         <div class="form-group">
                             <label>Base Price ($)</label>
-                            <input type="number" value="${service.price}" onchange="updateService(${index}, 'price', this.value)">
+                            <input type="number" value="${service.price}" min="0" step="10" onchange="updateService(${index}, 'price', this.value)">
                         </div>
                     </div>
-                    <div class="service-actions">
-                        <button class="btn btn-danger" onclick="removeService(${index})">Remove</button>
-                    </div>
+                    <button class="btn btn-primary" onclick="removeService(${index})" style="background: #f56565;">Remove Service</button>
                 </div>
             `).join('');
         }
@@ -680,11 +541,12 @@
                 value = parseFloat(value) || 0;
             }
             currentServices[index][field] = value;
+            showMessage('✅ Service updated', 'success');
         }
 
         function addNewService() {
             const newService = {
-                id: 'service_' + Date.now(),
+                id: Date.now(),
                 name: 'New Service',
                 description: 'Service description',
                 duration: 2,
@@ -692,69 +554,25 @@
             };
             currentServices.push(newService);
             displayServices();
+            showMessage('✅ New service added', 'success');
         }
 
         function removeService(index) {
-            currentServices.splice(index, 1);
-            displayServices();
+            if (confirm('Are you sure you want to remove this service?')) {
+                const serviceName = currentServices[index].name;
+                currentServices.splice(index, 1);
+                displayServices();
+                showMessage('✅ Service removed: ' + serviceName, 'success');
+            }
         }
 
         function saveServices() {
-            BusinessConfig.updateSection('services', currentServices);
-            showSuccessMessage();
-            updateProgress();
-        }
-
-        function toggleAPI(apiType) {
-            const toggle = document.getElementById(apiType + 'Toggle');
-            const config = document.getElementById(apiType + 'Config');
-            
-            toggle.classList.toggle('active');
-            
-            if (toggle.classList.contains('active')) {
-                config.style.display = 'block';
-            } else {
-                config.style.display = 'none';
+            try {
+                localStorage.setItem('services', JSON.stringify(currentServices));
+                showMessage('✅ Services saved successfully!', 'success');
+            } catch (e) {
+                showMessage('❌ Failed to save services: ' + e.message, 'error');
             }
-        }
-
-        function saveAPIConfig() {
-            const mapsEnabled = document.getElementById('mapsToggle').classList.contains('active');
-            const firebaseEnabled = document.getElementById('firebaseToggle').classList.contains('active');
-            
-            const apiConfig = {
-                googleMaps: {
-                    enabled: mapsEnabled,
-                    apiKey: mapsEnabled ? document.getElementById('mapsApiKey').value : ''
-                },
-                firebase: {
-                    enabled: firebaseEnabled,
-                    config: firebaseEnabled ? {
-                        apiKey: document.getElementById('firebaseApiKey').value,
-                        authDomain: document.getElementById('firebaseAuthDomain').value,
-                        projectId: document.getElementById('firebaseProjectId').value,
-                        storageBucket: document.getElementById('firebaseStorageBucket').value
-                    } : {}
-                }
-            };
-            
-            BusinessConfig.updateSection('apis', apiConfig);
-            showSuccessMessage();
-        }
-
-        function resetAllSettings() {
-            if (confirm('Are you sure you want to reset all settings? This cannot be undone.')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function showSuccessMessage() {
-            const message = document.getElementById('successMessage');
-            message.style.display = 'block';
-            setTimeout(() => {
-                message.style.display = 'none';
-            }, 3000);
         }
 
         // Enter key support for adding areas
