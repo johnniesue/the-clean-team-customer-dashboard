@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Clean Team - Customer & Job Management</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#48bb78">
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwP09_HDy1_u_VWDlZbz43CK_17aL-J4I&libraries=places&callback=initMap&loading=async"></script>
+    <script>
+        // Error handling for Google Maps API
+        window.gm_authFailure = function() {
+            console.error('Google Maps API authentication failed');
+            document.getElementById('map').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f7fafc; color: #718096; text-align: center; padding: 20px;"><div><h3>Map Authentication Error</h3><p>Please check your Google Maps API key</p></div></div>';
+        };
+        
+        // Fallback if Google Maps fails to load
+        setTimeout(function() {
+            if (typeof google === 'undefined' || !google.maps) {
+                console.warn('Google Maps API failed to load, using fallback');
+                document.getElementById('map').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: linear-gradient(135deg, #e6fffa, #b2f5ea); color: #2f855a; text-align: center; padding: 20px;"><div><h3>🗺️ Service Area Map</h3><p>Dallas • Plano • Frisco • McKinney</p><small>Interactive map will load when Google Maps API is available</small></div></div>';
+            }
+        }, 5000);
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #48bb78;
+            --secondary-color: #38a169;
+            --accent-color: #2f855a;
+            --success-color: #68d391;
+            --warning-color: #ed8936;
+            --error-color: #f56565;
+            --info-color: #4299e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .logo-placeholder {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            background: #f7fafc;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .section-header h2 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .form-section {
+            padding: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+
+        .required {
+            color: var(--error-color);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+        }
+
+        .map-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .map-container {
+            height: 400px;
+            background: linear-gradient(135deg, #e6fffa, #b2f5ea);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .quick-actions {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .quick-actions h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .action-btn.scheduled {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .action-btn.en-route {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .action-btn.started {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn.completed {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .records-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .records-table th,
+        .records-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .records-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .status-legend {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .status-quote { background: #718096; }
+        .status-scheduled { background: var(--info-color); }
+        .status-enroute { background: var(--warning-color); }
+        .status-progress { background: var(--primary-color); }
+        .status-completed { background: var(--success-color); }
+
+        .system-info {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .info-card h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-ready {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-connecting {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .status-active {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .status-protected {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .back-btn {
+            background: #718096;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #4a5568;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">
+            ← Back to Dashboard
+        </a>
+
+        <div class="header">
+            <h1>
+                <div class="logo-placeholder" id="logoPlaceholder">
+                    <span id="logoText">TC</span>
+                </div>
+                The Clean Team Customer & Job Management
+            </h1>
+            <p>Professional Cleaning Services • Customer Intake & Job Tracking System</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section-header">
+                <h2>Customer & Job Information</h2>
+            </div>
+
+            <div class="form-section">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">Customer Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firstName">First Name <span class="required">*</span></label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name <span class="required">*</span></label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Company</label>
+                        <input type="text" id="company">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="mobilePhone">Mobile Phone</label>
+                        <input type="tel" id="mobilePhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="homePhone">Home Phone</label>
+                        <input type="tel" id="homePhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="workPhone">Work Phone</label>
+                        <input type="tel" id="workPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerType">Customer Type</label>
+                        <select id="customerType">
+                            <option value="">Select Type</option>
+                            <option value="residential">Residential</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="office">Office Building</option>
+                            <option value="property-manager">Property Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadSource">Lead Source</label>
+                        <input type="text" id="leadSource" placeholder="How did they find us?">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="serviceAddress">Service Address <span class="required">*</span></label>
+                        <input type="text" id="serviceAddress" placeholder="Enter the complete service address including city and state" required>
+                        <small style="color: #718096; margin-top: 5px;">💡 Start typing for address suggestions, or click on the map below</small>
+                    </div>
+                </div>
+
+                <h3 style="color: #2d3748; margin-bottom: 20px; margin-top: 30px;">Job Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="jobType">Cleaning Service Type</label>
+                        <select id="jobType">
+                            <option value="">Select Service Type</option>
+                            <option value="house-cleaning">House Cleaning</option>
+                            <option value="deep-cleaning">Deep Cleaning</option>
+                            <option value="office-cleaning">Office Cleaning</option>
+                            <option value="move-in-out">Move-in/Move-out Cleaning</option>
+                            <option value="post-construction">Post-Construction Cleanup</option>
+                            <option value="carpet-cleaning">Carpet Cleaning</option>
+                            <option value="window-cleaning">Window Cleaning</option>
+                            <option value="one-time">One-time Cleaning</option>
+                            <option value="recurring">Recurring Service</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="priorityLevel">Priority Level</label>
+                        <select id="priorityLevel">
+                            <option value="normal">Normal</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobStatus">Job Status</label>
+                        <select id="jobStatus">
+                            <option value="quote-requested">Quote Requested</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="en-route">En Route</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="assignTechnician">Assign Team Member</label>
+                        <select id="assignTechnician">
+                            <option value="">Select Team Member</option>
+                            <option value="team-lead">Team Lead</option>
+                            <option value="cleaner-1">Cleaner 1</option>
+                            <option value="cleaner-2">Cleaner 2</option>
+                            <option value="specialist">Specialist</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="scheduledDate">Scheduled Date & Time</label>
+                        <input type="datetime-local" id="scheduledDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="estimatedDuration">Estimated Duration</label>
+                        <select id="estimatedDuration">
+                            <option value="">Select Duration</option>
+                            <option value="1">1 hour</option>
+                            <option value="2">2 hours</option>
+                            <option value="3">3 hours</option>
+                            <option value="4">4 hours</option>
+                            <option value="6">6 hours</option>
+                            <option value="8">8 hours (Full Day)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 style="color: #2d3748; margin-bottom: 20px; margin-top: 30px;">Additional Information</h3>
+                <div class="form-group full-width">
+                    <label for="jobNotes">Job Notes, Special Instructions, Customer Requests, Cleaning Requirements, etc.</label>
+                    <textarea id="jobNotes" rows="4" placeholder="Describe any special cleaning requirements, customer preferences, etc."></textarea>
+                </div>
+
+                <button class="save-btn" onclick="saveCustomerJob()">
+                    💾 Save Customer & Job
+                </button>
+            </div>
+        </div>
+
+        <div class="map-section">
+            <div class="section-header">
+                <h2>📍 Service Area Map</h2>
+                <p style="color: #718096; margin-top: 5px;">Click on the map to get an address, or view customer locations</p>
+            </div>
+            <div id="map" style="height: 400px; width: 100%;"></div>
+        </div>
+
+        <div class="quick-actions">
+            <h3>🚀 Quick Actions for Team</h3>
+            <p style="text-align: center; color: #718096; margin-bottom: 20px;">Use these buttons for quick status updates. Select customers from the table below first.</p>
+            <div class="action-buttons">
+                <button class="action-btn scheduled" onclick="updateStatus('scheduled')">
+                    📅 Mark Scheduled
+                </button>
+                <button class="action-btn en-route" onclick="updateStatus('en-route')">
+                    🚗 I'm En Route
+                </button>
+                <button class="action-btn started" onclick="updateStatus('started')">
+                    🧽 Job Started
+                </button>
+                <button class="action-btn completed" onclick="updateStatus('completed')">
+                    ✅ Job Complete
+                </button>
+            </div>
+        </div>
+
+        <div class="records-section">
+            <div class="section-header">
+                <h2>📋 Customer & Job Records</h2>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Company</th>
+                            <th>Address</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>Service Type</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Assigned Team</th>
+                            <th>Scheduled</th>
+                            <th>Duration</th>
+                            <th>Notes</th>
+                            <th>Contact</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTableBody">
+                        <tr>
+                            <td colspan="15" style="text-align: center; color: #718096; padding: 40px;">
+                                Loading customer data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="status-legend">
+            <h3 style="color: #2d3748; margin-bottom: 20px;">📊 Status Legend</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span class="status-badge status-quote">Quote Requested</span>
+                    <span>Customer needs pricing information</span>
+                </div>
+                <div class="legend-item">
+                    <span class="status-badge status-scheduled">Scheduled</span>
+                    <span>Appointment confirmed with customer</span>
+                </div>
+                <div class="legend-item">
+                    <span class="status-badge status-enroute">En Route</span>
+                    <span>Team member is on the way</span>
+                </div>
+                <div class="legend-item">
+                    <span class="status-badge status-progress">In Progress</span>
+                    <span>Cleaning is currently being performed</span>
+                </div>
+                <div class="legend-item">
+                    <span class="status-badge status-completed">Completed</span>
+                    <span>Job finished successfully</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="system-info">
+            <h3 style="color: #2d3748; margin-bottom: 20px;">🔧 System Information</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>🔥 Data Storage</h4>
+                    <p>Local storage for customer and job data</p>
+                    <span class="status-indicator status-ready">Ready</span>
+                </div>
+                <div class="info-card">
+                    <h4>📱 Mobile Friendly</h4>
+                    <p>Optimized for field team members on mobile devices</p>
+                    <span class="status-indicator status-ready">Ready</span>
+                </div>
+                <div class="info-card">
+                    <h4>🔒 Data Security</h4>
+                    <p>All customer data is securely stored locally</p>
+                    <span class="status-indicator status-protected">Protected</span>
+                </div>
+                <div class="info-card">
+                    <h4>🗺️ Maps Integration</h4>
+                    <p>Service area visualization and address verification</p>
+                    <span class="status-indicator status-active">Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for Google Maps
+        let map;
+        let geocoder;
+        let autocomplete;
+        let markers = [];
+        let infoWindow;
+
+        // Initialize Google Maps
+        function initMap() {
+            // Dallas, TX coordinates (center of service area)
+            const dallasCenter = { lat: 32.7767, lng: -96.7970 };
+            
+            // Initialize map
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 11,
+                center: dallasCenter,
+                mapTypeId: 'roadmap',
+                styles: [
+                    {
+                        featureType: 'poi',
+                        elementType: 'labels',
+                        stylers: [{ visibility: 'off' }]
+                    }
+                ]
+            });
+
+            // Initialize geocoder
+            geocoder = new google.maps.Geocoder();
+            
+            // Initialize info window
+            infoWindow = new google.maps.InfoWindow();
+
+            // Add service area circles
+            addServiceAreas();
+
+            // Initialize address autocomplete
+            initializeAutocomplete();
+
+            // Add click listener to map
+            map.addListener('click', function(event) {
+                geocodeLatLng(event.latLng);
+            });
+
+            // Load existing customer markers
+            loadCustomerMarkers();
+        }
+
+        function addServiceAreas() {
+            const serviceAreas = [
+                { name: 'Dallas', center: { lat: 32.7767, lng: -96.7970 }, radius: 15000 },
+                { name: 'Plano', center: { lat: 33.0198, lng: -96.6989 }, radius: 12000 },
+                { name: 'Frisco', center: { lat: 33.1507, lng: -96.8236 }, radius: 10000 },
+                { name: 'McKinney', center: { lat: 33.1972, lng: -96.6153 }, radius: 10000 }
+            ];
+
+            serviceAreas.forEach(area => {
+                const circle = new google.maps.Circle({
+                    strokeColor: '#48bb78',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: '#48bb78',
+                    fillOpacity: 0.15,
+                    map: map,
+                    center: area.center,
+                    radius: area.radius
+                });
+
+                // Add area label
+                const marker = new google.maps.Marker({
+                    position: area.center,
+                    map: map,
+                    title: `${area.name} Service Area`,
+                    icon: {
+                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                            <svg width="100" height="30" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="100" height="30" rx="15" fill="#48bb78" stroke="#2f855a" stroke-width="2"/>
+                                <text x="50" y="20" text-anchor="middle" fill="white" font-family="Arial" font-size="12" font-weight="bold">${area.name}</text>
+                            </svg>
+                        `),
+                        scaledSize: new google.maps.Size(100, 30),
+                        anchor: new google.maps.Point(50, 15)
+                    }
+                });
+            });
+        }
+
+        function initializeAutocomplete() {
+            const addressInput = document.getElementById('serviceAddress');
+            
+            autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                types: ['address'],
+                componentRestrictions: { country: 'US' },
+                fields: ['formatted_address', 'geometry', 'name']
+            });
+
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (place.geometry) {
+                    // Update map center to selected address
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(16);
+                    
+                    // Add marker for selected address
+                    addAddressMarker(place.geometry.location, place.formatted_address);
+                }
+            });
+        }
+
+        function geocodeLatLng(latlng) {
+            geocoder.geocode({ location: latlng }, function(results, status) {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        const address = results[0].formatted_address;
+                        document.getElementById('serviceAddress').value = address;
+                        
+                        // Add marker
+                        addAddressMarker(latlng, address);
+                        
+                        // Show info window
+                        infoWindow.setContent(`
+                            <div style="padding: 10px;">
+                                <strong>Selected Address:</strong><br>
+                                ${address}<br>
+                                <button onclick="useThisAddress('${address}')" style="margin-top: 10px; background: #48bb78; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                                    Use This Address
+                                </button>
+                            </div>
+                        `);
+                        infoWindow.setPosition(latlng);
+                        infoWindow.open(map);
+                    }
+                } else {
+                    console.error('Geocoder failed due to: ' + status);
+                }
+            });
+        }
+
+        function addAddressMarker(position, address) {
+            // Clear previous address markers (keep customer markers)
+            markers.forEach(marker => {
+                if (marker.type === 'address') {
+                    marker.setMap(null);
+                }
+            });
+            markers = markers.filter(marker => marker.type !== 'address');
+
+            // Add new address marker
+            const marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                title: address,
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="30" height="40" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 0C6.7 0 0 6.7 0 15c0 15 15 25 15 25s15-10 15-25C30 6.7 23.3 0 15 0z" fill="#48bb78"/>
+                            <circle cx="15" cy="15" r="8" fill="white"/>
+                            <text x="15" y="20" text-anchor="middle" fill="#48bb78" font-family="Arial" font-size="12" font-weight="bold">📍</text>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(30, 40),
+                    anchor: new google.maps.Point(15, 40)
+                }
+            });
+            
+            marker.type = 'address';
+            markers.push(marker);
+        }
+
+        function loadCustomerMarkers() {
+            try {
+                const customers = JSON.parse(localStorage.getItem('clean-team-customers') || '[]');
+                
+                customers.forEach(customer => {
+                    if (customer.serviceAddress) {
+                        geocoder.geocode({ address: customer.serviceAddress }, function(results, status) {
+                            if (status === 'OK' && results[0]) {
+                                const marker = new google.maps.Marker({
+                                    position: results[0].geometry.location,
+                                    map: map,
+                                    title: `${customer.firstName} ${customer.lastName}`,
+                                    icon: {
+                                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                                            <svg width="30" height="40" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M15 0C6.7 0 0 6.7 0 15c0 15 15 25 15 25s15-10 15-25C30 6.7 23.3 0 15 0z" fill="#2f855a"/>
+                                                <circle cx="15" cy="15" r="8" fill="white"/>
+                                                <text x="15" y="20" text-anchor="middle" fill="#2f855a" font-family="Arial" font-size="10" font-weight="bold">🏠</text>
+                                            </svg>
+                                        `),
+                                        scaledSize: new google.maps.Size(30, 40),
+                                        anchor: new google.maps.Point(15, 40)
+                                    }
+                                });
+
+                                marker.type = 'customer';
+                                markers.push(marker);
+
+                                // Add click listener for customer info
+                                marker.addListener('click', function() {
+                                    infoWindow.setContent(`
+                                        <div style="padding: 10px; min-width: 200px;">
+                                            <h4 style="margin: 0 0 10px 0; color: #2f855a;">${customer.firstName} ${customer.lastName}</h4>
+                                            <p style="margin: 5px 0;"><strong>Address:</strong> ${customer.serviceAddress}</p>
+                                            <p style="margin: 5px 0;"><strong>Service:</strong> ${customer.jobType || 'Not specified'}</p>
+                                            <p style="margin: 5px 0;"><strong>Status:</strong> ${customer.jobStatus || 'Quote Requested'}</p>
+                                            ${customer.mobilePhone ? `<p style="margin: 5px 0;"><strong>Phone:</strong> ${customer.mobilePhone}</p>` : ''}
+                                            <button onclick="contactCustomer(${customer.id})" style="margin-top: 10px; background: #48bb78; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                                                Contact Customer
+                                            </button>
+                                        </div>
+                                    `);
+                                    infoWindow.open(map, marker);
+                                });
+                            }
+                        });
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load customer markers:', e);
+            }
+        }
+
+        function useThisAddress(address) {
+            document.getElementById('serviceAddress').value = address;
+            infoWindow.close();
+        }
+
+        // Initialize the customer management system
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBusinessConfig();
+            loadCustomerRecords();
+        });
+
+        function loadBusinessConfig() {
+            try {
+                const savedCompany = localStorage.getItem('company-info');
+                if (savedCompany) {
+                    const company = JSON.parse(savedCompany);
+                    
+                    if (company.name) {
+                        // Update header with company name
+                        const headerTitle = document.querySelector('.header h1');
+                        headerTitle.innerHTML = `
+                            <div class="logo-placeholder" id="logoPlaceholder">
+                                <span id="logoText">${company.name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}</span>
+                            </div>
+                            ${company.name} Customer & Job Management
+                        `;
+                        
+                        // Update tagline
+                        const tagline = document.querySelector('.header p');
+                        tagline.textContent = `${company.tagline || 'Professional Cleaning Services'} • Customer Intake & Job Tracking System`;
+                    }
+                    
+                    // Update colors if saved
+                    if (company.color) {
+                        document.documentElement.style.setProperty('--primary-color', company.color);
+                        document.documentElement.style.setProperty('--secondary-color', company.color);
+                        document.documentElement.style.setProperty('--accent-color', company.color);
+                    }
+                }
+                
+                // Load saved logo if exists
+                const savedLogo = localStorage.getItem('company-logo');
+                if (savedLogo) {
+                    const logoPlaceholder = document.getElementById('logoPlaceholder');
+                    logoPlaceholder.innerHTML = `<img src="${savedLogo}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                }
+            } catch (e) {
+                console.warn('Failed to load business config:', e);
+            }
+        }
+
+        function saveCustomerJob() {
+            try {
+                const customerData = {
+                    id: Date.now(),
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    company: document.getElementById('company').value,
+                    email: document.getElementById('email').value,
+                    mobilePhone: document.getElementById('mobilePhone').value,
+                    homePhone: document.getElementById('homePhone').value,
+                    workPhone: document.getElementById('workPhone').value,
+                    customerType: document.getElementById('customerType').value,
+                    leadSource: document.getElementById('leadSource').value,
+                    serviceAddress: document.getElementById('serviceAddress').value,
+                    jobType: document.getElementById('jobType').value,
+                    priorityLevel: document.getElementById('priorityLevel').value,
+                    jobStatus: document.getElementById('jobStatus').value,
+                    assignTechnician: document.getElementById('assignTechnician').value,
+                    scheduledDate: document.getElementById('scheduledDate').value,
+                    estimatedDuration: document.getElementById('estimatedDuration').value,
+                    jobNotes: document.getElementById('jobNotes').value,
+                    createdDate: new Date().toISOString()
+                };
+
+                // Validate required fields
+                if (!customerData.firstName || !customerData.lastName || !customerData.serviceAddress) {
+                    alert('Please fill in all required fields (First Name, Last Name, Service Address)');
+                    return;
+                }
+
+                // Get existing customers or initialize empty array
+                let customers = JSON.parse(localStorage.getItem('clean-team-customers') || '[]');
+                
+                // Add new customer
+                customers.push(customerData);
+                
+                // Save to localStorage
+                localStorage.setItem('clean-team-customers', JSON.stringify(customers));
+                
+                // Show success message
+                alert('Customer and job information saved successfully!');
+                
+                // Clear form
+                clearForm();
+                
+                // Reload customer records
+                loadCustomerRecords();
+                
+                // Refresh map markers if map is loaded
+                if (map) {
+                    loadCustomerMarkers();
+                }
+                
+            } catch (e) {
+                console.error('Failed to save customer data:', e);
+                alert('Failed to save customer data. Please try again.');
+            }
+        }
+
+        function clearForm() {
+            const form = document.querySelector('.form-section');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'select-one') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+        }
+
+        function loadCustomerRecords() {
+            try {
+                const customers = JSON.parse(localStorage.getItem('clean-team-customers') || '[]');
+                const tableBody = document.getElementById('recordsTableBody');
+                
+                if (customers.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="15" style="text-align: center; color: #718096; padding: 40px;">
+                                No customer records found. Add your first customer above!
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tableBody.innerHTML = customers.map(customer => `
+                    <tr>
+                        <td>${customer.firstName}</td>
+                        <td>${customer.lastName}</td>
+                        <td>${customer.company || '-'}</td>
+                        <td>${customer.serviceAddress}</td>
+                        <td>${customer.mobilePhone || '-'}</td>
+                        <td>${customer.email || '-'}</td>
+                        <td>${customer.jobType || '-'}</td>
+                        <td>${customer.priorityLevel || 'Normal'}</td>
+                        <td><span class="status-badge status-${customer.jobStatus || 'quote'}">${customer.jobStatus || 'Quote Requested'}</span></td>
+                        <td>${customer.assignTechnician || '-'}</td>
+                        <td>${customer.scheduledDate ? new Date(customer.scheduledDate).toLocaleDateString() : '-'}</td>
+                        <td>${customer.estimatedDuration ? customer.estimatedDuration + 'h' : '-'}</td>
+                        <td>${customer.jobNotes ? customer.jobNotes.substring(0, 50) + '...' : '-'}</td>
+                        <td><button onclick="contactCustomer(${customer.id})" style="background: var(--info-color); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Contact</button></td>
+                        <td><button onclick="editCustomer(${customer.id})" style="background: var(--warning-color); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Edit</button></td>
+                    </tr>
+                `).join('');
+                
+            } catch (e) {
+                console.error('Failed to load customer records:', e);
+            }
+        }
+
+        function updateStatus(status) {
+            alert(`Status update feature: ${status}\nThis would update selected customer records to the new status.`);
+        }
+
+        function contactCustomer(customerId) {
+            const customers = JSON.parse(localStorage.getItem('clean-team-customers') || '[]');
+            const customer = customers.find(c => c.id === customerId);
+            if (customer) {
+                const phone = customer.mobilePhone || customer.homePhone || customer.workPhone;
+                if (phone) {
+                    window.open(`tel:${phone}`);
+                } else {
+                    alert('No phone number available for this customer.');
+                }
+            }
+        }
+
+        function editCustomer(customerId) {
+            const customers = JSON.parse(localStorage.getItem('clean-team-customers') || '[]');
+            const customer = customers.find(c => c.id === customerId);
+            if (customer) {
+                // Populate form with customer data
+                Object.keys(customer).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = customer[key];
+                    }
+                });
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Remove customer from array (will be re-added when saved)
+                const updatedCustomers = customers.filter(c => c.id !== customerId);
+                localStorage.setItem('clean-team-customers', JSON.stringify(updatedCustomers));
+                
+                alert('Customer data loaded for editing. Make your changes and click Save.');
+            }
+        }
+    </script>
+</body>
+</html>
+
